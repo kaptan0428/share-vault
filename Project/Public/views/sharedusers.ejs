@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <meta charset="UTF-8">
+    <title>Shared Users</title>
+    <link rel="stylesheet" href="/css/shared.css">
+  </head>
+  <body>
+    <h1>Shared Users</h1>
+    <h2>Shared Users</h2>
+  <div class="shared-users-container">
+    <% sharedUsers.forEach(user => { %>
+      <div class="user-card">
+        <div class="user-info">
+          <div class="user-name"><%= user.name %></div>
+          <div class="user-email"><%= user.email %></div>
+        </div>
+        <button class="unshare-btn" onclick="unshareUser('<%= user.email %>')">Unshare</button>
+      </div>
+    <% }); %>
+  </div>
+  
+  <script src="/js/sharing.js" ></script>
+</body>
+</html>

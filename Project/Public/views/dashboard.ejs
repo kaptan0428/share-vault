@@ -1,0 +1,179 @@
+<!-- <!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="../css/dashboard.css">
+  
+</head>
+<body>
+  <header>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container">
+        <a class="navbar-brand" href="/dashboard">Dashboard</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+          aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                data-bs-toggle="dropdown" aria-expanded="false">
+                Menu
+              </a>
+              <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <li><a class="dropdown-item" id="profileButton">Profile</a></li>
+                <li><a class="dropdown-item" id="logoutButton">Logout</a></li>
+                <li><a class="dropdown-item" id="logoutAllButton">Logout All</a></li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+        <div class="button-container">
+          <form id="uploadForm" enctype="multipart/form-data" >
+            <input type="file"  class="FileInputt" id="fileInput" name="file" >
+            <button class="UploadButton" id="uploadButton" >Upload</button>
+          </form> 
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <div class="container">
+      <h1>Welcome <%= user.name %></h1>
+      <div class="dashboard-content">
+        <h2>Dashboard Content Goes Here</h2>
+        <p id="profileContainer"></p>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+  <script src="../js/dashboard.js"></script>
+  <script src="../js/fileUpload.js"></script>
+</body>
+</html> -->
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard - Your Website</title>
+  
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+
+
+</head>
+<body>
+  <%- include('header') %>
+
+  <main>
+    <div class="container">
+      <!-- <h1>Welcome <%= user.name %></h1> -->
+      <div class="dashboard-content">
+        
+        <p id="profileContainer"></p>
+      </div>
+    </div>
+
+    <!-- <div id="dashboard">  -->
+      <!-- Folders Section -->
+      <!-- <h2>Folders</h2> -->
+      <!-- <ul id="folderList"></ul> -->
+  
+      <!-- Files Section -->
+      <!-- <h2>Files</h2> -->
+      <!-- <ul id="fileList"></ul> -->
+    <!-- </div> -->
+  <div class="container"> <h2>Folders</h2>
+  <div class="row">
+    <% folders.forEach(folder => { %>
+      <div class="col-sm-6 col-md-4 col-lg-3">
+        <div class="card mb-4" >
+          <div class="card-body">
+            <h5 class="card-title"><%= folder.name %></h5>
+            <div class="dropdown">
+              <button class="btn btn-secondary dropdown-toggle" type="button" id="folderActionsDropdown" data-toggle="dropdown">
+                Actions
+              </button>
+              <div class="dropdown-menu" aria-labelledby="folderActionsDropdown">
+                <a class="dropdown-item folderitem" id="<%= folder._id %>" >Open</a>
+                <a class="dropdown-item"  onclick="moveFolderToBin('<%= folder._id %>')" >Move to Recycle Bin</a>
+                <a class="dropdown-item" onclick="shareFolder('<%= folder._id %>')">Share</a>
+                <a class="dropdown-item" onclick="folderSharedUsers('<%= folder._id %>')">Get Shared Users</a>
+                <a class="dropdown-item" href="/folders/<%= folder._id %>/download">Download</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% }); %>
+  </div>
+</div>
+
+
+
+<div class="container">
+  <h2>Files</h2>
+  <div class="row">
+    <% files.forEach(file => { %>
+      <div class="col-sm-6 col-md-4 col-lg-3">
+        <div class="card mb-4">
+          <div class="card-body">
+            <h5 class="card-title"><%= file.filename %></h5>
+            <div class="dropdown">
+              <button class="btn btn-secondary dropdown-toggle" type="button" id="fileActionsDropdown" data-toggle="dropdown">
+                Actions
+              </button>
+              <div class="dropdown-menu" aria-labelledby="fileActionsDropdown">
+                <a class="dropdown-item" href="/files/<%= file._id %>/download">Download</a>
+                <a class="dropdown-item"  onclick="moveFileToBin('<%= file._id %>')" >Move to Recycle Bin</a>
+                <a class="dropdown-item" onclick="deleteFile('<%= file._id %>')">Delete</a>
+                <a class="dropdown-item" onclick="shareItem('<%= file._id %>')">Share</a>
+                <a class="dropdown-item" onclick="fileSharedUsers('<%= file._id %>')">Get Shared Users</a>
+                <a class="dropdown-item" >Public Link</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% }); %>
+  </div>
+</div>
+
+ 
+  
+  
+
+  
+
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+
+  <script src="../js/dashboard.js"></script>
+  <script src="../js/sharing.js"></script>
+  <script src="../js/fileUpload.js"></script>
+  <script src="../js/display.js" ></script>
+  
+ 
+
+  
+</body>
+</html>
+
+
+

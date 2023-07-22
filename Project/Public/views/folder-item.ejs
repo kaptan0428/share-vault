@@ -1,0 +1,29 @@
+
+
+<div class="container">
+  <div class="row">
+    <% folders.forEach(folder => { %>
+      <div class="col-sm-6 col-md-4 col-lg-3">
+        <div class="card mb-4  folderitem">
+          <div class="card-body">
+            <h5 class="card-title"><%= folder.name %></h5>
+            <div class="dropdown">
+              <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                Actions
+              </button>
+              <div class="dropdown-menu">
+                <a class="dropdown-item"  >Delete</a>
+                <a class="dropdown-item" href="/folders/<%= folder._id %>/download">Download</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% }); %>
+  </div>
+</div>
+
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+
+
+  
