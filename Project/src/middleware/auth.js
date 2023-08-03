@@ -32,7 +32,7 @@ const auth = async(req,res,next) =>{
         const user= await User.findOne( { _id: decoded._id , 'tokens.token' : token } )
         // console.log(token)
         // console.log (decoded)
-        // console.log(decoded._id)
+        // console.log(decoded._id) 
         //console.log(user)
         
 

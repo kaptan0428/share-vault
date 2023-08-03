@@ -10,6 +10,8 @@ const fs= require('fs')
 const mongoose = require('mongoose')
 const path = require('path');
 
+const { v4: uuidv4 } = require('uuid');
+
 const { ObjectId } = mongoose.Types;
 
 const archiver = require('archiver');
@@ -48,7 +50,8 @@ router.post('/files/upload', auth, upload.single('file'), async (req, res) => {
       folderId = new ObjectId(folderId); // Convert to ObjectId if it's a valid string
     }
     
-    
+    const publicLinkToken = uuidv4();
+
     const file = new File({
       owner: req.user._id,
       filename: originalname,
@@ -56,7 +59,8 @@ router.post('/files/upload', auth, upload.single('file'), async (req, res) => {
       path,
       mimetype,
       size,
-      folder : folderId 
+      folder : folderId ,
+      publicLinkToken
     });
 
     console.log(file) 
@@ -125,37 +129,118 @@ router.delete('/files/:id', auth, async (req, res) => {
 
 
 
-router.get('/files/:id/download', auth,  async (req, res) => {
+// router.get('/files/:id/download', auth,  async (req, res) => {
+//   try {
+//     const fileId = req.params.id;
+//     console.log('owner'  + req.user._id)
+//     // Retrieve file data from the database based on fileId
+//     const file = await File.findById(fileId);
+
+//     if (!file) {
+//       return res.status(404).json({ error: 'File not found' });
+//     }
+//     console.log(file)
+//     // Set headers for the response
+//     res.setHeader('Content-Type', 'application/octet-stream');
+//     res.setHeader('Content-Disposition', `attachment; filename="${file.uploadname}"`);
+
+//     // Stream the file content to the response
+//      const filePath = path.join(__dirname, '../../uploads', file.uploadname );
+
+//     fs.createReadStream(filePath).pipe(res);
+//   } catch (error) {
+//     console.error('Error downloading file:', error);
+//     res.status(500).json({ error: 'Unable to download file' });
+//   }
+// });
+
+
+router.get('/files/:id/download', async (req, res) => {
   try {
     const fileId = req.params.id;
-    console.log('owner'  + req.user._id)
-    // Retrieve file data from the database based on fileId
     const file = await File.findById(fileId);
 
     if (!file) {
       return res.status(404).json({ error: 'File not found' });
     }
-    console.log(file)
-    // Set headers for the response
-    res.setHeader('Content-Type', 'application/octet-stream');
-    res.setHeader('Content-Disposition', `attachment; filename="${file.uploadname}"`);
 
-    // Stream the file content to the response
-     const filePath = path.join(__dirname, '../../uploads', file.uploadname );
+    // Get the file path
+    const filePath = `./uploads/${file.uploadname}`;
 
-    fs.createReadStream(filePath).pipe(res);
+    // Use res.download() to serve the file for download
+    res.download(filePath, file.filename); // `file.originalName` is the desired name of the downloaded file
+
   } catch (error) {
     console.error('Error downloading file:', error);
     res.status(500).json({ error: 'Unable to download file' });
   }
 });
 
+router.get('/file/public/:token', async(req,res)=>{
+
+  try{
+
+    const publicLinkToken = req.params.token;
+
+    const file = await File.findOne({publicLinkToken})
+
+    if(!file)
+    res.status(404).json({eroor: 'File not found or public link expired'})
+    const filePath = `./uploads/${file.uploadname}`;
+
+    // Use res.download() to serve the file for download
+    res.download(filePath, file.filename); 
+  }
+  catch(error)
+  {
+    console.error('Error downloading file using public link:', error);
+  res.status(500).json({ error: 'Unable to download file' });
+
+  }
+
+})
+
 
 
 // Share file or folder with another user
-router.post('/share', auth , async (req, res) => {
+// router.post('/share', auth , async (req, res) => {
+//   try {
+//     console.log('share me ')
+//     const { fileId, folderId, email } = req.body;
+
+//     // Check if either fileId or folderId is provided
+//     if (!fileId && !folderId) {
+//       return res.status(400).json({ error: 'Please provide a valid fileId or folderId' });
+//     }
+
+//     // Find the file or folder based on provided ID
+//     let item;
+//     if (fileId) {
+//       item = await File.findById(fileId);
+//     } else {
+//       item = await Folder.findById(folderId);
+//     }
+
+//     if (!item) {
+//       return res.status(404).json({ error: 'File or folder not found' });
+//     }
+//     console.log(item)
+//     // Add the email to sharedUsers array in the item
+//     if (!item.sharedUsers.includes(email)) {
+//       item.sharedUsers.push(email);
+//       await item.save();
+//     }
+
+//     res.status(200).json({ message: 'File or folder shared successfully' });
+//   } catch (error) {
+//     console.error('Error sharing file/folder:', error);
+//     res.status(500).json({ error: 'Unable to share file or folder' });
+//   }
+// });
+
+
+router.post('/share', auth, async (req, res) => {
   try {
-    console.log('share me ')
     const { fileId, folderId, email } = req.body;
 
     // Check if either fileId or folderId is provided
@@ -174,17 +259,24 @@ router.post('/share', auth , async (req, res) => {
     if (!item) {
       return res.status(404).json({ error: 'File or folder not found' });
     }
-    console.log(item)
-    // Add the email to sharedUsers array in the item
-    if (!item.sharedUsers.includes(email)) {
-      item.sharedUsers.push(email);
+
+    // Find the user based on the provided email
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Add the user ID to sharedUsers array in the item
+    if (!item.sharedUsers.includes(user._id)) {
+      item.sharedUsers.push(user._id);
       await item.save();
     }
 
     res.status(200).json({ message: 'File or folder shared successfully' });
   } catch (error) {
     console.error('Error sharing file/folder:', error);
-    res.status(500).json({ error: 'Unable to share file or folder' });
+    res.status(500).json({ message: 'Unable to share file or folder' });
   }
 });
 
@@ -193,12 +285,12 @@ router.post('/share', auth , async (req, res) => {
 router.get('/shared',auth, async (req, res) => {
   try {
     console.log('hare ram')
-    const userEmail = req.user.email; // Assuming you have implemented authentication and have access to user's email
+    const userId = req.user.id; // Assuming you have implemented authentication and have access to user's email
 
     
     // Find all files and folders where the user's email is in the sharedUsers array
-    const sharedFiles = await File.find({ sharedUsers: userEmail });
-    const sharedFolders = await Folder.find({ sharedUsers: userEmail });
+    const sharedFiles = await File.find({ sharedUsers: userId });
+    const sharedFolders = await Folder.find({ sharedUsers: userId });
 
     // Send the shared files and folders to the client
     res.status(200).json({ sharedFiles, sharedFolders });
@@ -206,39 +298,26 @@ router.get('/shared',auth, async (req, res) => {
     console.error('Error fetching shared items:', error);
     res.status(500).json({ error: 'Unable to fetch shared items' });
   }
-});
+}); 
 
 
 router.get('/file/sharedUsers/:fileId' , auth , async (req,res)=>{
   try{
     const fileId = req.params.fileId;
   const userId  = req.user._id;
-  const file = await File.findOne({ _id: fileId, owner: userId })
+
   //console.log(folder)
-  const sharedUserEmails = file.sharedUsers;
   // const users = folder.populate('sharedUsers')
-  const sharedUsers = await Promise.all(
-    sharedUserEmails.map(async (email) => {
-
-      const user = await User.findOne({ email });
-
-      // Return an object with the user information you need
-      return {
-        email,
-        name: user ? user.name : 'User Not Found' // Add any other user information you need
-      }; 
-    })
-  );
-    console.log(sharedUsers)
-  res.render('sharedusers',{ sharedUsers });
+  const files = await File.findOne({_id : fileId , owner : userId}).populate('sharedUsers','email name')
+    console.log(files.sharedUsers)
+  res.render('sharedusers',{ sharedUsers : files.sharedUsers });
 
     
-  if(!file){
+  if(!files){
     console.log('yaha bhi aa rha hh')
     res.status(404).json({error: 'Folder not found'})
   }
-  
-  console.log(sharedUsers)
+   
 
 
 
@@ -261,7 +340,7 @@ router.post('/file/unshare', auth, async (req, res) => {
     const usermail = req.body.email;
     
     console.log(usermail)
-
+    const user  = await User.findOne({email : usermail})
     // Find the folder by ID and owner
     const file = await File.findOne({ _id: fileId, owner: req.user._id });
     console.log('hare ram 3')
@@ -270,7 +349,7 @@ router.post('/file/unshare', auth, async (req, res) => {
     }
     console.log('hare krishna')
     // Remove the user ID from the "sharedWith" array
-    file.sharedUsers = file.sharedUsers.filter(sharedUserId => sharedUserId.toString() !== usermail.toString());
+    file.sharedUsers = file.sharedUsers.filter(sharedUserId => sharedUserId.toString() !== user._id.toString());
 
     await file.save();
 
@@ -327,6 +406,54 @@ router.get('/getfiles/recycleBin' , auth , async(req,res)=>{
     
   }
 })
+
+
+router.post('/files/restore/:fileId' , auth , async (req,res)=>{
+
+  try{
+    const fileId = req.params.fileId;
+    console.log(fileId)
+    const file = await File.findOne({owner : req.user._id , _id : fileId})
+
+    file.isDeleted = false;
+    await file.save();
+    res.status(200).json({message : 'Folder restored successfully'})
+
+  }
+  catch(error){
+    console.error(error)
+    res.status(400).json({message : 'Unable to restore Folder'})
+
+  }
+}) 
+
+
+
+
+// handle the public link download link
+
+// Server-side code
+router.get('/public/:token', async (req, res) => {
+  try {
+    const token = req.params.token;
+    const file = await File.findOne({ publicLinkToken: token });
+
+    if (!file) {
+      return res.status(404).json({ error: 'Invalid or expired public link' });
+    }
+
+    const filePath = `./uploads/${file.filename}`;
+
+    // Use res.download() to serve the file for download
+    res.download(filePath, file.originalName);
+
+  } catch (error) {
+    console.error('Error downloading file:', error);
+    res.status(500).json({ error: 'Unable to download file' });
+  }
+});
+
+
 
 
 

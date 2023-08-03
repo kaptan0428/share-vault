@@ -39,8 +39,8 @@
                 <div class="dropdown-menu" aria-labelledby="folderActionsDropdown">
                     <a class="dropdown-item" onclick="deleteFolder('<%= folder._id %>')">Delete Permanently</a>
 
-                    <a class="dropdown-item" href="">Restore</a>
-                </div>
+                    <a class="dropdown-item"  onclick = "restoreFolder('<%= folder._id %>')">Restore</a>
+                  </div>
               </div>
             </div>
           </div>
@@ -63,7 +63,7 @@
                 </button>
                 <div class="dropdown-menu" aria-labelledby="fileActionsDropdown">
                   <a class="dropdown-item" onclick="deleteFile('<%= file._id %>')">Delete</a>
-                  <a class="dropdown-item" >Restore</a>
+                  <a class="dropdown-item"  onclick = "restoreFile('<%= file._id %>')">Restore</a>
                 </div>
               </div>
             </div>

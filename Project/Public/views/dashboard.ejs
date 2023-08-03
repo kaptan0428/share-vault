@@ -73,6 +73,7 @@
   
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
   <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/publicLinkDialog.css">
 
 
 </head>
@@ -87,6 +88,12 @@
         <p id="profileContainer"></p>
       </div>
     </div>
+
+    <div id="publicLinkDialog" class="dialog">
+      <span id="publicLink"></span>
+      <button class="closeBtn" onclick="closePublicLinkDialog()">Close</button>
+    </div>
+
 
     <!-- <div id="dashboard">  -->
       <!-- Folders Section -->
@@ -114,6 +121,7 @@
                 <a class="dropdown-item" onclick="shareFolder('<%= folder._id %>')">Share</a>
                 <a class="dropdown-item" onclick="folderSharedUsers('<%= folder._id %>')">Get Shared Users</a>
                 <a class="dropdown-item" href="/folders/<%= folder._id %>/download">Download</a>
+                <a class="dropdown-item public-link-btn"  onclick="generateFolderPublicLink('<%= folder.publicLinkToken %>')">Get Public Link</a>
               </div>
             </div>
           </div>
@@ -143,7 +151,7 @@
                 <a class="dropdown-item" onclick="deleteFile('<%= file._id %>')">Delete</a>
                 <a class="dropdown-item" onclick="shareItem('<%= file._id %>')">Share</a>
                 <a class="dropdown-item" onclick="fileSharedUsers('<%= file._id %>')">Get Shared Users</a>
-                <a class="dropdown-item" >Public Link</a>
+                <a class="dropdown-item public-link-btn"  onclick="generateFilePublicLink('<%= file.publicLinkToken %>')">Public Link</a>
               </div>
             </div>
           </div>
@@ -168,6 +176,7 @@
   <script src="../js/sharing.js"></script>
   <script src="../js/fileUpload.js"></script>
   <script src="../js/display.js" ></script>
+  <script src="../js/publicLink.js"></script>
   
  
 

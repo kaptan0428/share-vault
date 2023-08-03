@@ -178,7 +178,49 @@ async function addClickEventListeners() {
 
 
 
-// Fetch and display root-level folders on page load
+ function restoreFolder(folderId){
+
+  const token = localStorage.getItem('token');
+  console.log(token)
+  console.log(folderId)
+  fetch(`/folders/restore/${folderId}` , {
+    method : 'POST',
+    headers : {
+      'Authorization' : `Bearer ${token}`
+    }
+  }) .then((response) => response.json())
+  .then((data)=>{
+    console.log(data.message);
+    location.reload()
+  })
+  .catch(error => {
+    alert('Error moving folder to Recycle Bin:', error);
+    
+  });
+
+}
+
+function restoreFile(fileId){
+
+  const token = localStorage.getItem('token');
+  console.log(token)
+  console.log(fileId)
+  fetch(`/files/restore/${fileId}` , {
+    method : 'POST',
+    headers : {
+      'Authorization' : `Bearer ${token}`
+    }
+  }) .then((response) => response.json())
+  .then((data)=>{
+    console.log(data.message);
+    location.reload()
+  })
+  .catch(error => {
+    alert('Error moving folder to Recycle Bin:', error);
+    
+  });
+
+}
 
 
 
@@ -186,21 +228,6 @@ async function addClickEventListeners() {
 
 
 
-// Function to fetch and display folders and files
-// Function to fetch and display folders and files
-
-
-
-
-// Rest of the code...
-
-// CSS styles for the card layout
-
-
-
-// Rest of the code...
-
-// CSS styles for the folder and file items
 
 
   

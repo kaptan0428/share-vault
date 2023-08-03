@@ -247,9 +247,14 @@ function shareFolder(itemID) {
   })
     .then((response) => response.json())
     .then((data) => {
-      alert(data.message); // Show a success message to the user
+      console.log(data)
+      if(data.message)
+      alert(data.message);
+      else
+      alert(data.error)
     })
     .catch((error) => {
+      console.log('hdhdhdhd ')
       console.error('Error sharing item:', error);
       alert('Failed to share item. Please try again.');
     });
@@ -342,6 +347,8 @@ function getRecycleBin(){
 
   window.location.href = '/recycleBin';
 }
+
+
 
 
 

@@ -37,8 +37,13 @@ const fileSchema = new mongoose.Schema({
         type : Boolean,
         default : false
       },
-      sharedUsers : [{
-        type: String,
+      publicLinkToken : {
+        type : String,
+        unique : true
+      },
+      sharedUsers: [{ 
+        type: mongoose.Schema.Types.ObjectId,
+        ref : 'User',
         default: []
       }]
 },{

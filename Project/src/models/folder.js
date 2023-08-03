@@ -23,9 +23,14 @@ const folderSchema = new mongoose.Schema({
     type : Boolean,
     default : false
   },
+  publicLinkToken : {
+    type : String,
+    unique : true
+  },
   sharedUsers: [{ 
-    type: String,
-    default: [] 
+    type: mongoose.Schema.Types.ObjectId,
+    ref : 'User',
+    default: []
   }]
 });
 
